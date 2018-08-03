@@ -15,16 +15,16 @@ progressiveWeights | Point multiplier at each milestone index
 milestones | The count at which the game transitions milestone indecies
 colorPool | How the various colors are added to the color pool
 numColors | The number of different colors the circles could be
-maxSizes | The maximum width the circles can have at any milestone index.
-minSizes | The minimum width the circles can have at any milestone index.
+maxSizes | The maximum width the circles can have at any milestone index
+minSizes | The minimum width the circles can have at any milestone index
 singularityDistance | The threshold that maps directly to maxDistScore
 minDistScore | The smallest distance score value
 maxDistScore | The largest distance score value
-minSpeedScore | The smallest distance score value - determines max time bonus
-maxSpeedScore | The largest distance score value - determines max time penalty
+minSpeedScore | The max time bonus
+maxSpeedScore | The max time penalty
 factorWeights | The score multiplier; the weights by which the score is calculated
-bg | Background color, can take a single number between 0 and 255, or three
-fastRT | Really fast reaction time for means of normalizing time-score-decay (milliseconds)
-slowRT | Really slow reaction time for means of normalizing time-score-decay (milliseconds)
+bg | Background color, can take a one number between 0 and 255, or three
+fastRT | Really fast reaction time for normalizing time-score-decay (milliseconds)
+slowRT | Really slow reaction time for normalizing time-score-decay (milliseconds)
 globalWidth | The width of the canvas
 globalHeight | The height of the canvas
