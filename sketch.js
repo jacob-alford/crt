@@ -1,28 +1,30 @@
 //-----------Configurables------------
 const progressiveWeights = [1,1.5,2]; //Point multiplier at each milestone index
-const milestones = [50,100,150]; //The count at which the game transitions milestone indecies
-const colorPool = [[135,216,246],[255,0,255]]; //How the various colors are added to the color pool
-const numColors = 100; //The number of different colors the circles *could* be
-const maxSizes = [75,60,45]; //The maximum width the circles can have at any milestone index
-const minSizes = [15,10,5]; //The minimum width the circles can have at any milestone index.
-const singularityDistance = .3; //The threshold that maps directly to maxDistScore
-const minDistScore = -30; //The smallest distance score value
-const maxDistScore = 30; //The largest distance score value
-const minSpeedScore = -5; //The smallest distance score value - determines max time bonus (/2)
-const maxSpeedScore = 15; //The largest distance score value - determines max time penalty (/2)
-const factorWeights = [1,1]; //The score multiplier; the weights by which the score is calculated: [distance,time];
-const bg = 231; //Background color, can take a single number between 0 and 255, or three.
-const fastRT = 100; //Really fast reaction time for means of normalizing time-score-decay in milliseconds
-const slowRT = 1500; //Really slow reaction time ...
+const milestones = [25,50,75]; //The count at which the game transitions milestone indecies
+const colorPool = [[255,0,0],[0,255,0],[0,0,255],[255,255,0],[255,0,255],[0,255,255]]; //How the various colors are added to the color pool
+const colorPoolNames = {
+  "255,0,0":"red",
+  "0,255,0":"green",
+  "0,0,255":"blue",
+  "255,255,0":"yellow",
+  "255,0,255":"magenta",
+  "0,255,255":"cyan"
+}
+const maxSizes = [75,75,75]; //The maximum width the circles can have at any milestone index
+const minSizes = [75,75,75]; //The minimum width the circles can have at any milestone index.
+const minScore = -30; //The smallest score one can get (slow + inaccurate)
+const maxScore = 30; //The largest score one can get (fast + accurate)
+const minSpeedScore = -5; //Max time bonus
+const maxSpeedScore = 15; //Max time penalty
+const factorWeights = [100,2]; //The score multiplier; the weights by which the score is calculated: [distance,time];
+const bg = 0; //Background color, can take a single number between 0 and 255, or three.
+const fastRT = 200; //Really fast reaction time for means of normalizing time-score-decay in milliseconds
+const slowRT = 2000; //Really slow reaction time ...
 const globalWidth = 800; //The width of the canvas
 const globalHeight = 450; //The height of the canvas
 //------------------------------------
-//---------Randomize Colors----------
-for(let c = 0;c<=numColors;c++){
-  colorPool.push([rnd(0,255),rnd(0,255),rnd(0,255)]);
-}
-//------------------------------------
 let currentPoint;
+let correctChoice = {};
 let totalPoints = 0;
 let frameCountInst;
 let scores = [];
@@ -67,9 +69,27 @@ class Point{
     totalPoints++;
     if(gen){
       frameCountInst = new Date();
-      let col = random(colorPool);
-      fill(col[0],col[1],col[2]);
-      ellipse(x,y,w,h);
+      let col = [];
+      let matMul = [[0,1,0,1],[0,0,1,1]];
+      let choosenCirc = rnd(0,3);
+      correctChoice.points = [];
+      for(let c=0;c<4;c++){
+        let color = random(colorPool);
+        let choosenColor;
+        if(c == choosenCirc){
+          correctChoice.color = color;
+          fill(random(colorPool));
+          textSize(45);
+          text(colorPoolNames[color.toString()],50,50);
+          choosenColor = color;
+        }
+        let xPos = x*matMul[0][c]*(5) + (globalWidth/2.3);
+        let yPos = y*matMul[1][c]*(5) + (globalHeight/3);
+        col.push(color);
+        fill(col[c][0],col[c][1],col[c][2]);
+        ellipse(xPos,yPos,w,h);
+        correctChoice.points.push({x:xPos,y:yPos,thisColor:color});
+      }
       this.width = w;
       this.height = h;
     }
@@ -91,27 +111,32 @@ function setup() {
   background(bg);
   textSize(16);
   let size = random(minSizes[0],maxSizes[0]);
-  let x = random(size/2,globalWidth-size/2);
-  let y = random(size/2,globalHeight-size/2);
-  currentPoint = new Point(x,y,size,size,true);
+  currentPoint = new Point(25,25,size,size,true);
 }
 function mousePressed() {
   if(!finished && mouseY<globalHeight){
     const currentTime = new Date();
     const scoreDecay = map(currentTime.getTime() - frameCountInst.getTime(),fastRT,slowRT,minSpeedScore,maxSpeedScore);
     let click = new Point(mouseX,mouseY);
-    //console.log(`Distance: ${(Point.distance(click,currentPoint) <= currentPoint.width/2) ? 1:(((Point.distance(click,currentPoint)-currentPoint.width/2)<1) ? 1:(Point.distance(click,currentPoint)-currentPoint.width/2))}`);
-    //console.log(`Score Decay: ${scoreDecay}`);
-    let score = (map((1/Math.pow((Point.distance(click,currentPoint) <= currentPoint.width/2) ? 1:(((Point.distance(click,currentPoint)-currentPoint.width/2)<1) ? 1:(Point.distance(click,currentPoint)-currentPoint.width/2)),1)),0,1,minDistScore,maxDistScore)) * factorWeights[0] - scoreDecay * factorWeights[1];
-    //console.log(`Relevant Score: ${score}`);
-    scores[currentMilestoneIndex].push((score * currentWeight));
+    let possibilities = [];
+    let score = 0;
+    for(let c=0;c<4;c++){
+      if(correctChoice.points[c].thisColor == correctChoice.color){
+        possibilities[c] = new Point(correctChoice.points[c].x,correctChoice.points[c].y);
+        if(Point.distance(possibilities[c],click)<=(currentPoint.width/2)){
+          score++;
+        }
+      }
+    }
+    let currentScore = score * factorWeights[0] - scoreDecay * factorWeights[1];
+    //console.log(currentScore);
+    //let score = (map((1/Math.pow((Point.distance(click,currentPoint) <= currentPoint.width/2) ? 1:(((Point.distance(click,currentPoint)-currentPoint.width/2)<1) ? 1:(Point.distance(click,currentPoint)-currentPoint.width/2)),1)),0,1,minDistScore,maxDistScore)) * factorWeights[0] - scoreDecay * factorWeights[1];
+    scores[currentMilestoneIndex].push((map(currentScore,-15,105,minScore,maxScore) * currentWeight));
     currentPoint = null;
     clear();
     background(bg);
     let size = random(minSizes[currentMilestoneIndex],maxSizes[currentMilestoneIndex]);
-    let x = random(size/2,width-size/2);
-    let y = random(size/2,height-size/2);
-    currentPoint = new Point(x,y,size,size,true);
+    currentPoint = new Point(25,25,size,size,true);
     count++;
   }
   return false;
@@ -128,9 +153,7 @@ function draw(){
       scores.push([]);
     }
     let size = random(minSizes[0],maxSizes[0]);
-    let x = random(size/2,globalWidth-size/2);
-    let y = random(size/2,globalHeight-size/2);
-    currentPoint = new Point(x,y,size,size,true);
+    currentPoint = new Point(25,25,size,size,true);
     hasReset = false;
   }
   if(currentMilestoneIndex>=milestones.length){
@@ -141,7 +164,7 @@ function draw(){
       currentMilestoneIndex++;
     }
     fill(0);
-    text(`Phase ${currentMilestoneIndex + 1}, ${count + 1}`,50,50);
+    //text(`Phase ${currentMilestoneIndex + 1}, ${count + 1}`,50,50);
   }else{
     for(let c=0;c<progressiveWeights.length;c++){
       total.push(average(scores[c]));
@@ -149,7 +172,7 @@ function draw(){
     clear();
     background(bg);
     textSize(64);
-    fill(0);
+    fill(255);
     text(`Final Score: ${average(total)}`,width/8,height/4,width,height);
   }
 }
