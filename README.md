@@ -6,10 +6,10 @@ It has been statistically shown that complex reaction time (inspection time) has
 #### Note: Resolving this 'score' to an IQ (with a certain degree of inaccuracy) would require a unbiased sample size of individuals to obtain relative percentile scores.  
 
 ## Dependencies / Installation
-1. Download required [p5 Libraries](https://p5js.org/download) in a folder titled 'libraries.'
 1. Place in folder alongside files from this repository.
+1. Include the p5.js and p5.dom.js URLS from this [link](https://cdnjs.com/libraries/p5.js) in the index.html file as `<script>` tags.
 1. Run a localhost server that points to this folder.
-   1. This could be atom with the 'atom-live-server' package installed.
+   1. I use the 'atom-live-server' package installed with the Atom text editor.
 
 ## Configuration Variables
 Variable | Description
