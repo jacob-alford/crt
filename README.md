@@ -9,7 +9,7 @@ It has been statistically shown that complex reaction time (inspection time) has
 1. Download required [p5 Libraries](https://p5js.org/download) in a folder titled 'libraries.'
 1. Place in folder alongside files from this repository.
 1. Run a localhost server that points to this folder.
-  1. This could be atom with the 'atom-live-server' package installed.
+   1. This could be atom with the 'atom-live-server' package installed.
 
 ## Configuration Variables
 Variable | Description
