@@ -3,7 +3,13 @@ Scores a user's reaction time with randomized threshold markings; uses Javascrip
 
 ## Concept
 It has been statistically shown that complex reaction time (inspection time) has a moderate correlation with IQ (.5) where simple reaction time has a smaller correlation with IQ (.3)  This small applet is designed to randomly draw circles on the screen with random sizes and colors.  This could in theory emulate the inspection time metric mentioned above.  It comes with many easy-to-access variables to adjust the scoring mechanisms, and milestone thresholds.
-### Note: Resolving this 'score' to an IQ (with a certain degree of inaccuracy) would require a unbiased sample size of individuals to obtain relative percentile scores.  
+#### Note: Resolving this 'score' to an IQ (with a certain degree of inaccuracy) would require a unbiased sample size of individuals to obtain relative percentile scores.  
+
+## Dependencies / Installation
+1. Download required p5 libraries [Link](https://p5js.org/download) in a folder titled 'libraries.'
+1. Place in folder alongside files from this repository.
+1. Run a localhost server that points to this folder.
+  1. This could be atom with the 'atom-live-server' package installed.
 
 ## Configuration Variables
 Variable | Description
