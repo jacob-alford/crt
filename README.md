@@ -8,6 +8,12 @@ It has been statistically shown that complex reaction time (inspection time) has
 ## Dependencies / Installation
 Requires p5 and p5.dom to run.  Can be run using a localhost server, or placed on a webpage with the necessary `<script>` tags included.
 
+## Branches
+### Main Branch
+This branch contains the original random-dot reaction-time score project.
+### Four-Options Branch
+This branch contains a different kind of complex reaction time.  This project involves displaying four fixed randomized-color circles, whose goal is to click the circle with the correct color corresponding to the color spelled-out in the text.  There are often multiple correct choices, and the text-color of the text (which indicates which color to choose) is also randomized and often does not correspond to the correct choice.  
+
 ## Configuration Variables
 Variable | Description
 -------- | ------------
