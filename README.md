@@ -11,8 +11,10 @@ Requires p5 and p5.dom to run.  Can be run using a localhost server, or placed o
 ## Branches
 ### Main Branch
 This branch contains the original random-dot reaction-time score project.
+![](Master-CRT.jpg?raw=true)
 ### Four-Options Branch
 This branch contains a different kind of complex reaction time.  This project involves displaying four fixed randomized-color circles, whose goal is to click the circle with the correct color corresponding to the color spelled-out in the text.  There are often multiple correct choices, and the text-color of the text (which indicates which color to choose) is also randomized and often does not correspond to the correct choice.  
+![](Four-Choices-CRT.jpg?raw=true)
 
 ## Configuration Variables
 Variable | Description
