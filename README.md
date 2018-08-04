@@ -23,12 +23,11 @@ Variable | Description
 progressiveWeights | Point multiplier at each milestone index
 milestones | The count at which the game transitions milestone indecies
 colorPool | How the various colors are added to the color pool
-numColors | The number of different colors the circles could be
+colorPoolNames | The names of each color specified in colorPool
 maxSizes | The maximum width the circles can have at any milestone index
 minSizes | The minimum width the circles can have at any milestone index
-singularityDistance | The threshold that maps directly to maxDistScore
-minDistScore | The smallest distance score value
-maxDistScore | The largest distance score value
+minScore | The smallest score one can get (slow + inaccurate)
+maxScore | The largest score one can get (fast + accurate)
 minSpeedScore | The max time bonus
 maxSpeedScore | The max time penalty
 factorWeights | The score multiplier; the weights by which the score is calculated
