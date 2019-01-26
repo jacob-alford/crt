@@ -17,17 +17,22 @@ This branch contains the original random-dot reaction-time score project.
 This branch contains a different kind of complex reaction time.  This project involves displaying four fixed randomized-color circles, whose goal is to click the circle with the correct color corresponding to the color spelled-out in the text.  There are often multiple correct choices, and the text-color of the text (which indicates which color to choose) is also randomized and often does not correspond to the correct choice.  
 ![](Four-Choice-CRT.jpg?raw=true)
 
+### v3 Branch
+This branch contains the third installment of the CRT series.  It emulates a design from a 23andMe cognitive test where you match the number above a list of shapes to the shape displayed.  It isn't scored, as I couldn't find a way to normalize a score properly :-(
+![](v3.png)
+
 ## Configuration Variables
 Variable | Description
 -------- | ------------
 progressiveWeights | Point multiplier at each milestone index
 milestones | The count at which the game transitions milestone indecies
 colorPool | How the various colors are added to the color pool
-colorPoolNames | The names of each color specified in colorPool
+numColors | The number of different colors the circles could be
 maxSizes | The maximum width the circles can have at any milestone index
 minSizes | The minimum width the circles can have at any milestone index
-minScore | The smallest score one can get (slow + inaccurate)
-maxScore | The largest score one can get (fast + accurate)
+singularityDistance | The threshold that maps directly to maxDistScore
+minDistScore | The smallest distance score value
+maxDistScore | The largest distance score value
 minSpeedScore | The max time bonus
 maxSpeedScore | The max time penalty
 factorWeights | The score multiplier; the weights by which the score is calculated
