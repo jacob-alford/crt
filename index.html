@@ -1,27 +1,108 @@
-<!DOCTYPE html>
 <html>
-<head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="jumbotron text-center">
+      <h2>Complex Reaction Time</h2>
+      <nav class="nav justify-content-center my-0">
+        <a class="nav-link linkFade" href="../../">Home</a>
+        <a class="nav-link linkFade" href="../Complex_Reaction_Time">CRT v1.0</a>
+        <a class="nav-link linkFade" href="../Complex_Reaction_Time_2">CRT v2.0</a>
+        <a class="nav-link linkFade" style="color:black;" href="#">CRT v3.0</a>
+      </nav>
+    </div>
+    <div class="container">
+      <div class="row border-bottom pb-3">
+        <div class="col">
+          <h3 class="text-center mb-4">Complex Reaction Time v3.0</h3>
+          <p>This applet improves on Complex Reaction Time v2.0.  Previously, you had to match the color of text with a colored circle.  The complexity arrised from distinguishing between the color that the text <i>said</i> and the color of the text.</p>
+          <p>This applet is inspired by a research test within 23andMe.  Basically, the applet will show you one of nine symbols.  Your job is to click 1,2, or 3 by matching the symbol to the list of symbols.  It is scored by total answered and accuracy.</p>
+          <h3 class="text-center mb-4">How to play</h3>
+          <ol>
+            <li>Select the difficulty you wish to play at.  The symbols displayed in the <strong>Current Symbols</strong> section will be the key to matching the symbols.</li>
+            <li>Press play when you are ready.</li>
+            <li>There will be 50 total rounds.</li>
+            <li>A random symbol from the list will be displayed, press the number corresponding to the displayed symbol on your keyboard (1,2,3).</li>
+            <li>If you wish, you can submit your score to my database anonymously for research purposes.  Your score, the difficulty, the time taken, the current time, and IP will be recorded.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="row p-4 text-center border-bottom">
+        <div class="col" id="difficultySelect">
+          <h4 id="difficultyDisplay"><strong>Current Difficulty:</strong> <span class="badge badge-success">Easy</span></h4>
+          <div class="btn-toolbar text-center mx-auto" style="width:322.5501px">
+            <div class="btn-group mr-2" role="group" aria-label="Basic example">
+              <button type="button" class="btn btn-success" id="easyButton">Easy</button>
+              <button type="button" class="btn btn-warning" id="medButton">Medium</button>
+              <button type="button" class="btn btn-danger" id="hardButton">Hard</button>
+            </div>
+            <div class="btn-group" role="group" aria-label="Basic example">
+              <button class="btn btn-primary gameStart">Play</button>
+              <button type="button" class="btn btn-dark btn-large" id="resetButton">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row p-4 text-center border-bottom">
+        <div class="col">
+          <div id="gameDisplay">
+            <div class="card border border-primary mx-auto" style="width: 18rem;">
+              <div class="card-header">
+                Symbols will be displayed here:
+              </div>
+              <div class="card-body">
 
-	<title>Complex_Reaction_Time</title>
+              </div>
+              <div class="card-footer text-muted">
+                Not Currently Playing
+              </div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button type="button" style="width:10rem;" class="btn btn-secondary btn-large" id="click1">1</button>
+            <button type="button" style="width:10rem;" class="btn btn-primary btn-large" id="click2">2</button>
+            <button type="button" style="width:10rem;" class="btn btn-secondary btn-large" id="click3">3</button>
+          </div>
+        </div>
+      </div>
+      <div class="row p-4 text-center border-bottom">
+        <div class="col">
+          <h3>Current Symbols</h3>
+          <table class="table table-borderless text-center display-3" style="width:100%">
+            <thead>
+              <tr>
+                <th scope="col">1</th>
+                <th scope="col">2</th>
+                <th scope="col">3</th>
+                <th scope="col">1</th>
+                <th scope="col">2</th>
+                <th scope="col">3</th>
+                <th scope="col">1</th>
+                <th scope="col">2</th>
+                <th scope="col">3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="symDisplay">
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.dom.js"></script>
-	<script src="sketch.js"></script>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-	<style>
-		body {
-			margin:0;
-			padding:0;
-			overflow: hidden;
-		}
-		canvas {
-			margin:auto;
-		}
-	</style>
-</head>
-<body>
-</body>
+      <div class="row">
+        <div class="col text-center" id="scoreDisplay">
+          <h3>Your Score:</h3>
+          <p>If you play the game, your score will be displayed here:</p>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="matrix.js"></script>
+    <script src="sketch.js"></script>
+  </body>
 </html>

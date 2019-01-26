@@ -1,155 +1,185 @@
-//-----------Configurables------------
-const progressiveWeights = [1,1.5,2]; //Point multiplier at each milestone index
-const milestones = [50,100,150]; //The count at which the game transitions milestone indecies
-const colorPool = [[135,216,246],[255,0,255]]; //How the various colors are added to the color pool
-const numColors = 100; //The number of different colors the circles *could* be
-const maxSizes = [75,60,45]; //The maximum width the circles can have at any milestone index
-const minSizes = [15,10,5]; //The minimum width the circles can have at any milestone index.
-const singularityDistance = .3; //The threshold that maps directly to maxDistScore
-const minDistScore = -30; //The smallest distance score value
-const maxDistScore = 30; //The largest distance score value
-const minSpeedScore = -5; //The smallest distance score value - determines max time bonus (/2)
-const maxSpeedScore = 15; //The largest distance score value - determines max time penalty (/2)
-const factorWeights = [1,1]; //The score multiplier; the weights by which the score is calculated: [distance,time];
-const bg = 231; //Background color, can take a single number between 0 and 255, or three.
-const fastRT = 100; //Really fast reaction time for means of normalizing time-score-decay in milliseconds
-const slowRT = 1500; //Really slow reaction time ...
-const globalWidth = 800; //The width of the canvas
-const globalHeight = 450; //The height of the canvas
-//------------------------------------
-//---------Randomize Colors----------
-for(let c = 0;c<=numColors;c++){
-  colorPool.push([rnd(0,255),rnd(0,255),rnd(0,255)]);
+// --- Symbol Difficulty Storage ---
+const diff1_1 = [ // Shapes 1
+  "&#9728;","&#9729;","&#9730;", // sun, cloud, umbrella
+  "&#9820;","&#9821;","&#9822;", // rook, bishop, knight
+  "&clubs;","&hearts;","&diams;" // clubs, hearts, diamonds
+];
+const diff1_2 = [ // Shapes 2
+  "&#9744;","&#9745;","&#9746;", // Empty box, check box, x box
+  "&starf;","&#9752;","&#9753;", // Star, Shamrock, Flower Bullet
+  "&#9992;","&#9993;","&#9996;" // Airplane, Mail, Peace Sign
+];
+const diff2_1 = [ // Symbols
+  "&#9760;","&#9762;","&#9763;", // Skull xBones, Radioactive, Biohazard
+  "&#9767;","&#9765;","&#9768;", // Chi Rho, Ankh, Cross of Lorraine
+  "&#9770;","&#9774;","&#9775;" // Star and Crescent, Peace Symbol, Yin Yang
+];
+const diff2_2 = [ // Digrams/Trigrams
+  "&#9868;","&#9869;","&#9870;", // Digram 0, 1, 2
+  "&#9777;","&#9778;","&#9780;", // Trigram 1, 2, 3
+  "&#9779;","&#9781;","&#9782;" // Trigram 4, 5, 6
+];
+const diff3_1 = [ // Homogeneous stars
+  "&#10026;","&#10027;","&#10025;", // w/in circle, circle in, outline (5-sided)
+  "&#10033;","&#10035;","&#10034;", // Heavy, light, hollow (6-sided)
+  "&#10039;","&#10041;","&#10042;" // Eight pt, 12 pt, 16pt
+];
+const diff3_2 = [ // Glyphs
+  "&Rscr;","&bernou;","&Mscr;", // R script, B script, M script
+  "&alefsym;","&beth;","&gimel;", // Aleph, Bet, gimel
+  "&#8522;","&#8468;","&#8452;" // Property Line, LB Bar, Center Line
+];
+const diffArr = [diff1_1,diff1_2,diff2_1,diff2_2,diff3_1,diff3_2];
+// --- Classes ---
+let plays = [];
+class game{
+  constructor(acc,time,diff){
+    this.accuracy = acc;
+    this.time = time;
+    this.difficulty = diff;
+  }
 }
-//------------------------------------
-let currentPoint;
-let totalPoints = 0;
-let frameCountInst;
-let scores = [];
-let currentWeight = progressiveWeights[0];
-let currentMilestoneIndex = 0;
-let count = 0;
-let finished = false;
-let resetButton;
-let hasReset = false;
-for(let c=0;c<milestones.length;c++){
-  scores.push([]);
+// --- Globals ---
+const totalRounds = 50;
+const difficultyResolve = [null,"Easy","Medium","Hard"];
+let currentDifficulty = 1;
+let currentSymbols = shuffle(diff1_1);
+let currentlyPlaying = false;
+let respCounter = 1;
+let timeStart;
+let timeEnd;
+let correctAnswer = 1;
+let responses = [];
+// --- Support ---
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }
-function average(array){
-  if(!isNaN(array[0])){
-      return sum(array)/(array.length);
+// --- Game State Displays ---
+const displaySymbols = () => {
+  let string = "";
+    let rCheck = Math.random();
+    let wrkArr;
+    if(rCheck<.5){
+      if(currentDifficulty == 1) wrkArr = shuffle(diffArr[0]);
+      else if(currentDifficulty == 2) wrkArr = shuffle(diffArr[2]);
+      else if(currentDifficulty == 3) wrkArr = shuffle(diffArr[4]);
+    }else{
+      if(currentDifficulty == 1) wrkArr = shuffle(diffArr[1]);
+      else if(currentDifficulty == 2) wrkArr = shuffle(diffArr[3]);
+      else if(currentDifficulty == 3) wrkArr = shuffle(diffArr[5]);
+    }
+    for(let i=0;i<9;i++){
+      let num = 100/9;
+      string += `<td style="width:${num}%;">${wrkArr[i]}</td>`;
+    }
+    currentSymbols = wrkArr;
+    $("#symDisplay").html(string);
+}
+const setDifficulty = diff => {
+  reset();
+  currentDifficulty = diff;
+  if(diff == 1) $("#difficultyDisplay").html(`<strong>Current Difficulty:</strong> <span class="badge badge-success">Easy</span>`);
+  else if(diff == 2) $("#difficultyDisplay").html(`<strong>Current Difficulty:</strong> <span class="badge badge-warning">Medium</span>`);
+  else if(diff == 3) $("#difficultyDisplay").html(`<strong>Current Difficulty:</strong> <span class="badge badge-danger">Hard</span>`);
+  displaySymbols();
+}
+const displaySymbol = () => {
+  let randIndex = Math.floor(Math.random()*9);
+  correctAnswer = randIndex%3+1;
+  let diff = "";
+  if(currentDifficulty == 1) diff = "success";
+  else if(currentDifficulty == 2) diff = "warning";
+  else if(currentDifficulty == 3) diff = "danger";
+  $("#gameDisplay").html(`<div class="card border border-${diff} mx-auto" style="width: 18rem;">
+    <div class="card-header">
+      Current Symbol:
+    </div>
+    <div class="card-body">
+      <h1 class="card-title display-1">${currentSymbols[randIndex]}</h1>
+    </div>
+    <div class="card-footer text-muted">
+      Response: ${respCounter}
+    </div>
+  </div>`);
+  respCounter++;
+}
+const reset = () => {
+  currentlyPlaying = false;
+  respCounter = 1;
+  correctAnswer = 1;
+  responses = [];
+  $("#gameDisplay").html(`<div class="card border border-primary mx-auto" style="width: 18rem;">
+    <div class="card-header">
+      Symbols will be displayed here:
+    </div>
+    <div class="card-body">
+    </div>
+    <div class="card-footer text-muted">
+      Not Currently Playing
+    </div>
+  </div>`);
+}
+const submit = guess => {
+  if(respCounter == totalRounds){
+    if(guess == correctAnswer) responses.push(1);
+    else responses.push(0);
+    timeEnd = new Date();
+    displayScore();
   }else{
-    return 0;
+    if(guess == correctAnswer) responses.push(1);
+    else responses.push(0);
+    displaySymbol();
   }
 }
-function sum(array){
-  let total = 0;
-  for(let i=0;i<array.length;i++){
-    total += array[i];
-  }
-  return total;
+const play = () => {
+  timeStart = new Date();
+  currentlyPlaying = true;
+  reset();
+  $("#gameDisplay").html("");
+  displaySymbol();
 }
-function percError(a,b){
-  return (Math.abs(a-b)/b) * 100;
+const displayScore = () => {
+ let scoreVec = new Vector(responses);
+ let time = (timeEnd.getTime() - timeStart.getTime())/1000;
+ let accuracy = scoreVec.mean();
+ let thisGame = new game(accuracy,time,currentDifficulty);
+ plays.push(thisGame);
+ $("#scoreDisplay").html("");
+ plays.forEach((c,i) => {
+   $("#scoreDisplay").prepend(`<div class="border-bottom p-3"><h1>Game ${i+1}:</h3>
+   <h2><strong>Difficulty:</strong> ${difficultyResolve[c.difficulty]}</h2>
+   <h2><strong>Accuracy:</strong> ${c.accuracy*100}%</h2>
+   <h2><strong>Duration:</strong> ${c.time} seconds.</h2></div>`);
+ });
+ reset();
 }
-function redo(){
-  currentWeight = progressiveWeights[0];
-  currentMilestoneIndex = 0;
-  count = 0;
-  finished = false;
-  hasReset = true;
-}
-function rnd(min,max){
-	return Math.floor(Math.random()*(max-min+1))+min;
-}
-class Point{
-  constructor(x,y,w=55,h=55,gen=false){
-    totalPoints++;
-    if(gen){
-      frameCountInst = new Date();
-      let col = random(colorPool);
-      fill(col[0],col[1],col[2]);
-      ellipse(x,y,w,h);
-      this.width = w;
-      this.height = h;
+// --- Do ---
+$(document).ready(function(){
+  setDifficulty(1);
+  $("#easyButton").click(function(){setDifficulty(1)});
+  $("#medButton").click(function(){setDifficulty(2)});
+  $("#hardButton").click(function(){setDifficulty(3)});
+  $("button.gameStart").click(function(){play()});
+  $("#resetButton").click(function(){reset()});
+  $("#click1").click(function(){submit(1)});
+  $("#click2").click(function(){submit(2)});
+  $("#click3").click(function(){submit(3)});
+  $(document).keypress(function(e){
+    e.preventDefault();
+    switch(e.originalEvent.key){
+      case "1":
+        submit(1);
+        break;
+      case "2":
+        submit(2);
+        break;
+      case '3':
+        submit(3);
+        break;
     }
-    this.x = x;
-    this.y = y;
-  }
-  static distance(a,b){
-    const delta_x = a.x-b.x;
-    const delta_y = a.y-b.y;
-    return Math.hypot(delta_x, delta_y);
-  }
-}
-function setup() {
-  frameRate(30);
-  resetButton = createButton("Reset");
-  resetButton.position(windowWidth - 100,windowHeight - 100);
-  resetButton.mousePressed(redo);
-	createCanvas(globalWidth, globalHeight);
-  background(bg);
-  textSize(16);
-  let size = random(minSizes[0],maxSizes[0]);
-  let x = random(size/2,globalWidth-size/2);
-  let y = random(size/2,globalHeight-size/2);
-  currentPoint = new Point(x,y,size,size,true);
-}
-function mousePressed() {
-  if(!finished && mouseY<globalHeight){
-    const currentTime = new Date();
-    const scoreDecay = map(currentTime.getTime() - frameCountInst.getTime(),fastRT,slowRT,minSpeedScore,maxSpeedScore);
-    let click = new Point(mouseX,mouseY);
-    //console.log(`Distance: ${(Point.distance(click,currentPoint) <= currentPoint.width/2) ? 1:(((Point.distance(click,currentPoint)-currentPoint.width/2)<1) ? 1:(Point.distance(click,currentPoint)-currentPoint.width/2))}`);
-    //console.log(`Score Decay: ${scoreDecay}`);
-    let score = (map((1/Math.pow((Point.distance(click,currentPoint) <= currentPoint.width/2) ? 1:(((Point.distance(click,currentPoint)-currentPoint.width/2)<1) ? 1:(Point.distance(click,currentPoint)-currentPoint.width/2)),1)),0,1,minDistScore,maxDistScore)) * factorWeights[0] - scoreDecay * factorWeights[1];
-    //console.log(`Relevant Score: ${score}`);
-    scores[currentMilestoneIndex].push((score * currentWeight));
-    currentPoint = null;
-    clear();
-    background(bg);
-    let size = random(minSizes[currentMilestoneIndex],maxSizes[currentMilestoneIndex]);
-    let x = random(size/2,width-size/2);
-    let y = random(size/2,height-size/2);
-    currentPoint = new Point(x,y,size,size,true);
-    count++;
-  }
-  return false;
-}
-function draw(){
-  let total = [];
-  currentFrameCount = frameCount;
-  if(count == 0 && hasReset){
-    clear();
-    background(bg);
-    textSize(16);
-    scores = [];
-    for(let c=0;c<milestones.length;c++){
-      scores.push([]);
-    }
-    let size = random(minSizes[0],maxSizes[0]);
-    let x = random(size/2,globalWidth-size/2);
-    let y = random(size/2,globalHeight-size/2);
-    currentPoint = new Point(x,y,size,size,true);
-    hasReset = false;
-  }
-  if(currentMilestoneIndex>=milestones.length){
-    finished = true;
-  }
-  if(!finished){
-    if(count == milestones[currentMilestoneIndex]){
-      currentMilestoneIndex++;
-    }
-    fill(0);
-    text(`Phase ${currentMilestoneIndex + 1}, ${count + 1}`,50,50);
-  }else{
-    for(let c=0;c<progressiveWeights.length;c++){
-      total.push(average(scores[c]));
-    }
-    clear();
-    background(bg);
-    textSize(64);
-    fill(0);
-    text(`Final Score: ${average(total)}`,width/8,height/4,width,height);
-  }
-}
+});
+});
